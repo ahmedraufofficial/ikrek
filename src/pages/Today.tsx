@@ -3,7 +3,6 @@ import { sb } from '../lib/supabase'
 import { NEW_PER_DAY, type Question } from '../lib/types'
 import { useAuth } from '../hooks/useAuth'
 import IntroCard from '../components/IntroCard'
-import Logo from '../components/Logo'
 
 function localDate(): string {
   return new Date().toLocaleDateString('en-CA') // YYYY-MM-DD
@@ -78,30 +77,20 @@ export default function Today() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-400 flex items-center justify-center">
-        Loading…
-      </div>
-    )
+    return <p className="text-center text-zinc-400 py-16">Loading…</p>
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
-      <header className="flex items-center justify-between px-6 py-4 border-b border-zinc-900">
-        <h1>
-          <Logo size={26} withWordmark />
-        </h1>
-        <div className="flex items-center gap-4 text-sm text-zinc-400">
-          <span>
-            Today {introducedToday}/{NEW_PER_DAY}
-          </span>
-          <button onClick={() => sb().auth.signOut()} className="hover:text-zinc-200">
-            Sign out
-          </button>
-        </div>
-      </header>
+    <div className="flex flex-col items-center gap-6">
+      <p className="text-sm text-zinc-400">
+        Today{' '}
+        <span className="text-zinc-200 font-medium">
+          {introducedToday}/{NEW_PER_DAY}
+        </span>{' '}
+        new cards
+      </p>
 
-      <main className="flex-1 flex items-center justify-center p-6">
+      <div className="w-full flex justify-center">
         {error ? (
           <div className="text-center space-y-3">
             <p className="text-red-400 text-sm">{error}</p>
@@ -126,7 +115,7 @@ export default function Today() {
             </p>
           </div>
         )}
-      </main>
+      </div>
     </div>
   )
 }

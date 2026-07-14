@@ -2,7 +2,7 @@ import { isSupabaseConfigured } from './lib/supabase'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import Logo from './components/Logo'
 import Login from './pages/Login'
-import Today from './pages/Today'
+import Shell from './components/Shell'
 
 function Gate() {
   const { session, loading } = useAuth()
@@ -13,7 +13,7 @@ function Gate() {
       </div>
     )
   }
-  return session ? <Today /> : <Login />
+  return session ? <Shell /> : <Login />
 }
 
 function App() {
