@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Question } from '../lib/types'
+import AlignedLine from './AlignedLine'
 
 interface Props {
   question: Question
@@ -32,8 +33,16 @@ export default function IntroCard({ question, onDone }: Props) {
               key={r.id}
               className="rounded-lg bg-zinc-800/60 border border-zinc-800 px-4 py-2.5"
             >
-              <p className="font-medium">{r.text_hu}</p>
-              {r.text_en && <p className="text-sm text-zinc-400">{r.text_en}</p>}
+              <p className="font-medium leading-relaxed">
+                {r.alignment ? <AlignedLine segments={r.alignment.hu} /> : r.text_hu}
+              </p>
+              {r.alignment ? (
+                <p className="text-sm text-zinc-400 leading-relaxed mt-0.5">
+                  <AlignedLine segments={r.alignment.en} />
+                </p>
+              ) : (
+                r.text_en && <p className="text-sm text-zinc-400">{r.text_en}</p>
+              )}
             </li>
           ))}
         </ul>
