@@ -8,7 +8,7 @@ function Gate() {
   const { session, loading } = useAuth()
   if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-400 flex items-center justify-center">
+      <div className="min-h-dvh bg-zinc-950 text-zinc-400 flex items-center justify-center">
         Loading…
       </div>
     )
@@ -19,7 +19,7 @@ function Gate() {
 function App() {
   if (!isSupabaseConfigured) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center p-6">
+      <div className="min-h-dvh bg-zinc-950 text-zinc-100 flex items-center justify-center p-6">
         <div className="max-w-md w-full space-y-4 text-center">
           <h1 className="flex justify-center">
             <Logo size={40} withWordmark />

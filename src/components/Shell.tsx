@@ -15,7 +15,7 @@ export default function Shell() {
   const [tab, setTab] = useState<Tab>('today')
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col">
+    <div className="min-h-dvh bg-zinc-950 text-zinc-100 flex flex-col">
       <header className="flex items-center justify-between px-6 py-4 border-b border-zinc-900">
         <h1>
           <Logo size={26} withWordmark />

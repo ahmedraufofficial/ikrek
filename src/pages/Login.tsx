@@ -21,8 +21,15 @@ export default function Login() {
         if (error) setError(error.message)
       } else {
         const { data, error } = await sb().auth.signUp({ email, password })
-        if (error) setError(error.message)
-        else if (!data.session) setNotice('Check your email to confirm your account, then sign in.')
+        if (error) {
+          setError(
+            /rate limit/i.test(error.message)
+              ? 'Too many confirmation emails sent — Supabase only sends a couple per hour. Try again later, or disable "Confirm email" in the Supabase dashboard.'
+              : error.message
+          )
+        } else if (!data.session) {
+          setNotice('Check your email to confirm your account, then sign in.')
+        }
       }
     } finally {
       setBusy(false)
@@ -30,7 +37,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center p-6">
+    <div className="min-h-dvh bg-zinc-950 text-zinc-100 flex items-center justify-center p-6">
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
         <div className="text-center mb-8">
           <h1 className="flex justify-center">
