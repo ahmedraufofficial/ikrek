@@ -13,7 +13,9 @@ export default function Today() {
   const [queue, setQueue] = useState<Question[]>([])
   const [introducedToday, setIntroducedToday] = useState(0)
   const [totalDone, setTotalDone] = useState(0)
+  const [dayNumber, setDayNumber] = useState(1)
   const [loading, setLoading] = useState(true)
+  const [restarting, setRestarting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const load = useCallback(async () => {
@@ -36,6 +38,11 @@ export default function Today() {
       const doneToday = (progress ?? []).filter((p) => p.introduced_on === today).length
       const remaining = Math.max(0, NEW_PER_DAY - doneToday)
 
+      // Day N = one past each earlier learning day; today counts as the next one.
+      const pastDays = new Set(
+        (progress ?? []).filter((p) => p.introduced_on !== today).map((p) => p.introduced_on)
+      ).size
+
       const next = (questions ?? [])
         .filter((q) => !doneIds.has(q.id))
         .slice(0, remaining)
@@ -44,6 +51,7 @@ export default function Today() {
           responses: [...q.responses].sort((a, b) => a.position - b.position),
         }))
 
+      setDayNumber(pastDays + 1)
       setIntroducedToday(doneToday)
       setTotalDone(doneIds.size)
       setQueue(next)
@@ -76,19 +84,47 @@ export default function Today() {
     setTotalDone((n) => n + 1)
   }
 
+  async function restartDay() {
+    if (!session) return
+    if (!window.confirm(`Restart Day ${dayNumber}? Today's progress will be cleared.`)) return
+    setRestarting(true)
+    const { error } = await sb()
+      .from('user_question_progress')
+      .delete()
+      .eq('user_id', session.user.id)
+      .eq('introduced_on', localDate())
+    setRestarting(false)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    await load()
+  }
+
   if (loading) {
     return <p className="text-center text-zinc-400 py-16">Loading…</p>
   }
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <p className="text-sm text-zinc-400">
-        Today{' '}
-        <span className="text-zinc-200 font-medium">
-          {introducedToday}/{NEW_PER_DAY}
-        </span>{' '}
-        new cards
-      </p>
+      <div className="flex items-center gap-3 text-sm text-zinc-400">
+        <p>
+          Day {dayNumber} ·{' '}
+          <span className="text-zinc-200 font-medium">
+            {introducedToday}/{NEW_PER_DAY}
+          </span>{' '}
+          new cards
+        </p>
+        {introducedToday > 0 && (
+          <button
+            onClick={restartDay}
+            disabled={restarting}
+            className="text-xs text-zinc-500 hover:text-zinc-300 underline underline-offset-2 disabled:opacity-50"
+          >
+            {restarting ? 'Restarting…' : 'Restart day'}
+          </button>
+        )}
+      </div>
 
       <div className="w-full flex justify-center">
         {error ? (
@@ -104,11 +140,11 @@ export default function Today() {
           <div className="text-center space-y-2 max-w-sm">
             <p className="text-4xl">🎉</p>
             <h2 className="text-xl font-semibold">
-              {introducedToday >= NEW_PER_DAY ? 'Done for today!' : 'All caught up'}
+              {introducedToday >= NEW_PER_DAY ? `Day ${dayNumber} complete!` : 'All caught up'}
             </h2>
             <p className="text-sm text-zinc-400">
               {introducedToday >= NEW_PER_DAY
-                ? `You introduced ${NEW_PER_DAY} new cards today. Come back tomorrow.`
+                ? `You introduced ${NEW_PER_DAY} new cards today. Come back tomorrow for Day ${dayNumber + 1}.`
                 : totalDone === 0
                   ? 'No content found. Run the seed SQL in Supabase to add questions.'
                   : `You've been introduced to all ${totalDone} available questions. Add more content in Supabase.`}
